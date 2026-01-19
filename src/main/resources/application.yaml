@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update  # or use `create`, `create-drop`, `validate`, or `none` depending on your needs
+      ddl-auto: update  # or use `create`, `create-drop`, `validate`, or `none`
     show-sql: true
     properties:
       hibernate.physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
