@@ -33,6 +33,10 @@ public class Role {
         this.name = name;
     }
 
+    public Role(String admin) {
+        this.name = admin;
+    }
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
