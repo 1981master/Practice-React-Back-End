@@ -12,8 +12,9 @@ public class Parent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true)
+    @Column(name = "login_id", nullable = false, unique = true, length = 50)
+    private String loginId;
+    @Column(nullable = true)
     private String email;
 
     @Column(nullable = false)
@@ -42,10 +43,11 @@ public class Parent {
     /** Constructors **/
     public Parent() {}
 
-    public Parent(Long id, String email, String password) {
+    public Parent(Long id, String email, String password, String loginId) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.loginId = loginId;
     }
 
     /** Lifecycle Callback **/
@@ -77,4 +79,12 @@ public class Parent {
 
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+
+    public String getLoginId() {
+        return loginId;
+    }
+
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
+    }
 }

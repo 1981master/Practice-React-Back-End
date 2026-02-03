@@ -9,4 +9,10 @@ public interface ParentRepository extends JpaRepository<Parent, Long> {
     Optional<Parent> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    Optional<Object> findByLoginId(String identifier);
+
+    Optional<Object> findByLoginIdOrEmail(String identifier, String identifier1);
+
+    boolean existsByLoginId(String loginId);
 }

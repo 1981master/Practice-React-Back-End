@@ -11,12 +11,14 @@ public class UserDTO {
 
     private Long id;
     private String email;
+    private String parentId;
     private List<String> roles;
     private List<String> permissions;
 
     public UserDTO(Parent parent) {
         this.id = parent.getId();
         this.email = parent.getEmail();
+        this.parentId = parent.getLoginId();
 
         // Roles
         this.roles = parent.getRoles()
@@ -52,4 +54,8 @@ public class UserDTO {
     public String getEmail() { return email; }
     public List<String> getRoles() { return roles; }
     public List<String> getPermissions() { return permissions; }
+
+    public String getParentId() {
+        return parentId;
+    }
 }

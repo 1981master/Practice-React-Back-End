@@ -1,6 +1,8 @@
 package com.master.practiceReact.models.mappers;
 
+import com.master.practiceReact.models.DTOs.ParentDTO;
 import com.master.practiceReact.models.DTOs.ToDoDTO;
+import com.master.practiceReact.models.Entity.Parent;
 import com.master.practiceReact.models.Entity.ToDo;
 import com.master.practiceReact.models.Entity.Kid;
 
@@ -44,6 +46,21 @@ public class Mapper {
         todo.setKid(kid);
 
         return todo;
+    }
+
+    public static ParentDTO toDTO(Parent parent) {
+        ParentDTO dto = new ParentDTO();
+        dto.setId(parent.getId());
+        dto.setLoginId(parent.getLoginId());
+        dto.setEmail(parent.getEmail());
+        dto.setCreatedAt(parent.getCreatedAt());
+        dto.setRoles(
+                parent.getRoles()
+                        .stream()
+                        .map(r -> r.getName())
+                        .collect(java.util.stream.Collectors.toSet())
+        );
+        return dto;
     }
 
     // -------------------- Kid mapping (optional) --------------------
