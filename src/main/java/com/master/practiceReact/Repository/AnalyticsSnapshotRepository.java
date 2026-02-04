@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface AnalyticsSnapshotRepository extends JpaRepository<AnalyticsSnapshot, Long> {
     List<AnalyticsSnapshot> findByKidIdOrderBySnapshotDateDesc(Long kidId);
+    List<AnalyticsSnapshot> findByKidIdOrderBySnapshotDateAsc(Long kidId);
 }

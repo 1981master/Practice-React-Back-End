@@ -28,6 +28,10 @@ public class Permission {
         this.name = name;
     }
 
+    public Permission(String permName) {
+        this.name = permName;
+    }
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

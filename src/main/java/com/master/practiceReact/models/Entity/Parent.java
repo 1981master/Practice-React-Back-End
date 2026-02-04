@@ -12,8 +12,10 @@ public class Parent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "login_id", nullable = false, unique = true, length = 50)
     private String loginId;
+
     @Column(nullable = true)
     private String email;
 
@@ -27,12 +29,12 @@ public class Parent {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Kid> kids = new HashSet<>();
 
-    // One parent can have many permissions
+    // One parent can have many direct permissions
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ParentPermission> parentPermissions = new HashSet<>();
 
     // Parent roles (many-to-many)
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER) // ✅ EAGER to avoid LazyInitializationException
     @JoinTable(
             name = "parent_role",
             joinColumns = @JoinColumn(name = "parent_id"),
@@ -80,11 +82,6 @@ public class Parent {
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
 
-    public String getLoginId() {
-        return loginId;
-    }
-
-    public void setLoginId(String loginId) {
-        this.loginId = loginId;
-    }
+    public String getLoginId() { return loginId; }
+    public void setLoginId(String loginId) { this.loginId = loginId; }
 }

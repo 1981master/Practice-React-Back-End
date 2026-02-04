@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface TopicProgressRepository extends JpaRepository<TopicProgress, Long> {
     List<TopicProgress> findByKidId(Long kidId);
+
 }

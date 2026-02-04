@@ -1,5 +1,6 @@
 package com.master.practiceReact.models.mappers;
 
+import com.master.practiceReact.models.DTOs.KidDTO;
 import com.master.practiceReact.models.DTOs.ParentDTO;
 import com.master.practiceReact.models.DTOs.ToDoDTO;
 import com.master.practiceReact.models.Entity.Parent;
@@ -65,8 +66,26 @@ public class Mapper {
 
     // -------------------- Kid mapping (optional) --------------------
     // Example if you have a KidDTO
-    /*
-    public static KidDTO toDTO(Kid kid) { ... }
-    public static Kid fromDTO(KidDTO dto, Parent parent) { ... }
-    */
+
+    public static KidDTO toDTO(Kid kid) {
+        KidDTO kidDTO = new KidDTO();
+        kidDTO.setId(kid.getId());
+        kidDTO.setName(kid.getName());
+        kidDTO.setAge(kid.getAge());
+        kidDTO.setGrade(kid.getGrade());
+        kidDTO.setCreatedAt(kid.getCreatedAt());
+
+        return kidDTO;
+    }
+    public static Kid fromDTO(KidDTO dto, Parent parent) {
+        Kid kid = new Kid();
+        kid.setId(dto.getId());
+        kid.setParent(parent);
+        kid.setName(dto.getName());
+        kid.setCreatedAt(dto.getCreatedAt());
+        kid.setGrade(dto.getGrade());
+        kid.setAge(dto.getAge());
+       return kid;
+    }
+
 }

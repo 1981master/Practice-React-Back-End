@@ -4,10 +4,12 @@ import com.master.practiceReact.Repository.ToDoRepository;
 import com.master.practiceReact.models.DTOs.ToDoDTO;
 import com.master.practiceReact.models.Entity.ToDo;
 import com.master.practiceReact.models.Entity.Kid;
+import com.master.practiceReact.models.enums.Priority;
 import com.master.practiceReact.models.mappers.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,9 +34,35 @@ public class ToDoService {
         return Mapper.toDTO(todo);
     }
 
-    // Save or update ToDo
+    // Save new ToDo
     public ToDoDTO save(ToDoDTO toDoDTO, Kid kid) {
         ToDo todo = Mapper.fromDTO(toDoDTO, kid);
+        if (todo.getPriority() == null) {
+            todo.setPriority(Priority.MEDIUM); // default if not set
+        }
+        ToDo saved = toDoRepository.save(todo);
+        return Mapper.toDTO(saved);
+    }
+
+    // Update existing ToDo
+    public ToDoDTO update(Long id, ToDoDTO updatedDto) {
+        ToDo todo = toDoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Todo not found with id: " + id));
+
+        // Update fields
+        if (updatedDto.getText() != null) todo.setText(updatedDto.getText());
+        todo.setNote(updatedDto.getNote());
+        if (updatedDto.getPriority() != null) todo.setPriority(updatedDto.getPriority());
+
+        // Handle completed toggle
+        boolean prevCompleted = todo.getCompleted();
+        todo.setCompleted(updatedDto.getCompleted());
+        if (!prevCompleted && updatedDto.getCompleted()) {
+            todo.setCompletedAt(LocalDateTime.now());
+        } else if (prevCompleted && !updatedDto.getCompleted()) {
+            todo.setCompletedAt(null);
+        }
+
         ToDo saved = toDoRepository.save(todo);
         return Mapper.toDTO(saved);
     }
@@ -44,7 +72,7 @@ public class ToDoService {
         toDoRepository.deleteById(id);
     }
 
-    // Optional: fetch todos by kid
+    // Fetch todos by kidId
     public List<ToDoDTO> findByKidId(Long kidId) {
         return toDoRepository.findByKidId(kidId)
                 .stream()

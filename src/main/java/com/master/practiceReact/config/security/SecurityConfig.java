@@ -1,50 +1,20 @@
-//package com.master.practiceReact.config.security;
-//
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.config.Customizer;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.web.SecurityFilterChain;
-//
-//@Configuration
-//public class SecurityConfig {
-//
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        http
-//                .authorizeHttpRequests(auth -> auth
-//                        // allow H2 console only for authenticated users
-//                        .requestMatchers("/h2-console/**").authenticated()
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(Customizer.withDefaults())
-//                .logout(Customizer.withDefaults())
-//
-//                // REQUIRED for H2 console
-//                .csrf(csrf -> csrf.disable())
-//                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
-//
-//        return http.build();
-//    }
-//}
-
-
-
 package com.master.practiceReact.config.security;
 
-import com.master.practiceReact.service.ParentDetailsService;
+import com.master.practiceReact.config.security.jwt.CustomUserDetailsService;
+import com.master.practiceReact.config.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -52,62 +22,76 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    private final ParentDetailsService parentDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(ParentDetailsService parentDetailsService) {
-        this.parentDetailsService = parentDetailsService;
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CustomUserDetailsService userDetailsService) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.userDetailsService = userDetailsService;
     }
 
-    /** Main security filter chain **/
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .cors(Customizer.withDefaults()) // enable CORS
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()   // allow H2 console
-                        .requestMatchers("/api/auth/**").permitAll()     // allow login/signup
-                        .anyRequest().authenticated()                    // protect all other endpoints
+                        // public endpoints first
+                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
+
+                        // secured endpoints with permissions
+                        .requestMatchers("/api/kids/**").hasAuthority("VIEW_KIDS")
+                        .requestMatchers("/api/topics/**").hasAuthority("VIEW_TOPICS")
+                        .requestMatchers("/api/todos/**").hasAuthority("VIEW_TODOS")
+                        .requestMatchers("/api/analytics/**").hasAuthority("VIEW_ANALYTICS")
+
+                        // all other requests must be authenticated
+                        .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())  // default form login
-                .logout(Customizer.withDefaults())     // default logout
-                .csrf(csrf -> csrf.disable())          // disable CSRF for H2 console
-                .headers(headers -> headers.frameOptions(frame -> frame.disable())); // H2 console support
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable())); // H2 console
 
         return http.build();
     }
+    @Bean
+    public AuthenticationManager authenticationManager() {
 
-    /** Password encoder for storing hashed passwords **/
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+
+        return new ProviderManager(provider);
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /** CORS configuration **/
+    // ✅ CORS configuration for frontend with credentials
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // React dev server
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+
+        // ⚠ Must match exact frontend origin for credentials
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // allow cookies or auth headers
+
+        // ⚠ Required if frontend sends credentials (cookies/auth headers)
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
-
-    /** AuthenticationManager for login endpoint **/
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        // provide ParentDetailsService in constructor
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(parentDetailsService);
-        provider.setPasswordEncoder(passwordEncoder()); // password encoder is still settable
-
-        return new ProviderManager(provider); // wrap in AuthenticationManager
-    }
-
-
-
 }

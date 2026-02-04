@@ -1,8 +1,11 @@
 package com.master.practiceReact.controllers;
 
+import com.master.practiceReact.Repository.ParentRepository;
 import com.master.practiceReact.models.DTOs.ToDoDTO;
 import com.master.practiceReact.models.Entity.Kid;
+import com.master.practiceReact.models.Entity.Parent;
 import com.master.practiceReact.service.KidService;
+import com.master.practiceReact.service.ParentDetailsService;
 import com.master.practiceReact.service.ToDoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,40 +18,78 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/todo")
+@RequestMapping("/api/todo")
 public class ToDoController {
 
-    Logger logger = LoggerFactory.getLogger(ToDoController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ToDoController.class);
+
     @Autowired
-    ToDoService toDoService;
+    private ToDoService toDoService;
+
     @Autowired
-    KidService kidService;
-    @GetMapping("/allToDo")
-    public List<com.master.practiceReact.models.DTOs.ToDoDTO> getToDos(){
-        return toDoService.findAllToDo();
+    private KidService kidService;
+    private ParentDetailsService parentDetailsService;
+
+    // -----------------------------
+    // GET all todos for frontend
+    // -----------------------------
+    @GetMapping("/{kidId}")
+    public ResponseEntity<List<ToDoDTO>> getTodos(@PathVariable Long kidId) {
+        logger.info("[Todo] Fetching todos for kidId: {}", kidId);
+        List<ToDoDTO> todos = toDoService.findByKidId(kidId);
+        return ResponseEntity.ok(todos);
     }
 
+    // -----------------------------
+    // CREATE new todo
+    // -----------------------------
     @PostMapping("/saveToDo")
-    public ToDoDTO insertToDo(@RequestBody com.master.practiceReact.models.DTOs.ToDoDTO todo) {
-        // Fetch the Kid entity using the kidId from the DTO
-        Kid kid = kidService.findById(todo.getKidId()); // You need a KidService that fetches Kid by ID
-        return toDoService.save(todo, kid);
-    }
-
-
-    @DeleteMapping("/deleteToDo/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<?> deleteToDo(@PathVariable("id") Long todoDto) {
+    public ResponseEntity<ToDoDTO> createTodo(@RequestBody ToDoDTO todoDto) {
         try {
-            logger.info("ToDoDTO Text: {}",todoDto);
-            toDoService.deleteById(todoDto);
-//            toDoService.delete(toDoService.mapDTOToDo(todoDto));
-            return ResponseEntity.ok("Todo deleted successfully");
+            logger.info("[Todo] Adding new todo: {}", todoDto.getText());
+
+            Kid kid = kidService.findById(todoDto.getKidId());
+            if (kid == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+
+            ToDoDTO saved = toDoService.save(todoDto, kid);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Failed to delete todo: " + e.getMessage());
+            logger.error("[Todo] Failed to add todo", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
+    // -----------------------------
+    // UPDATE todo (toggle completed, edit text/note/priority)
+    // -----------------------------
+    @PutMapping("/{id}")
+    public ResponseEntity<ToDoDTO> updateTodo(@PathVariable Long id, @RequestBody ToDoDTO updatedDto) {
+        try {
+            logger.info("[Todo] Updating todo id: {}", id);
+            ToDoDTO updated = toDoService.update(id, updatedDto);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            logger.error("[Todo] Failed to update todo id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
+    // -----------------------------
+    // DELETE todo
+    // -----------------------------
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<?> deleteTodo(@PathVariable Long id) {
+        try {
+            logger.info("[Todo] Deleting todo id: {}", id);
+            toDoService.deleteById(id);
+            return ResponseEntity.ok("Todo deleted successfully");
+        } catch (Exception e) {
+            logger.error("[Todo] Failed to delete todo id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete todo: " + e.getMessage());
+        }
+    }
 }

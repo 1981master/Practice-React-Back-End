@@ -4,8 +4,9 @@
 
 CREATE TABLE parent (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255),
     password VARCHAR(255) NOT NULL,
+    loginId VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL
 );
 

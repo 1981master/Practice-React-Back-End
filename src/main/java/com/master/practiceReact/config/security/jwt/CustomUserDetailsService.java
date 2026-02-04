@@ -2,11 +2,15 @@ package com.master.practiceReact.config.security.jwt;
 
 import com.master.practiceReact.Repository.ParentRepository;
 import com.master.practiceReact.models.Entity.Parent;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -18,17 +22,34 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Parent parent = parentRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Parent not found: " + email));
+    @Transactional(readOnly = true) // ✅ keeps Hibernate session open for lazy collections
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
 
-        var authorities = parent.getRoles().stream()
-                .flatMap(role -> role.getPermissions().stream())
-                .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+        Parent parent = (Parent) parentRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("Parent not found: " + loginId));
+
+        // Eagerly load roles and permissions to avoid LazyInitializationException
+        parent.getRoles().forEach(role -> role.getPermissions().size());
+
+        List<GrantedAuthority> authorities = parent.getRoles().stream()
+                .flatMap(role -> {
+                    // role authority
+                    GrantedAuthority roleAuthority = new SimpleGrantedAuthority("ROLE_" + role.getName());
+
+                    // permissions authority (exact string as in hasAuthority)
+                    Stream<GrantedAuthority> permissionAuthorities = role.getPermissions().stream()
+                            .map(p -> new SimpleGrantedAuthority(p.getName()));
+
+                    // combine role + permissions
+                    return Stream.concat(permissionAuthorities, Stream.of(roleAuthority));
+                })
                 .collect(Collectors.toList());
 
+        // 🔹 Debug log: print authorities for troubleshooting
+        authorities.forEach(a -> System.out.println("Granted authority: " + a.getAuthority()));
+
         return new org.springframework.security.core.userdetails.User(
-                parent.getEmail(),
+                parent.getLoginId(),
                 parent.getPassword(),
                 authorities
         );
