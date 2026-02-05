@@ -1,13 +1,14 @@
 package com.master.practiceReact.controllers;
 
+import com.master.practiceReact.Repository.KidRepository;
 import com.master.practiceReact.Repository.ParentRepository;
 import com.master.practiceReact.Repository.RoleRepository;
 import com.master.practiceReact.config.security.jwt.JwtUtil;
 import com.master.practiceReact.models.DTOs.LoginRequest;
 import com.master.practiceReact.models.DTOs.SignupRequest;
 import com.master.practiceReact.models.DTOs.UserDTO;
+import com.master.practiceReact.models.Entity.Kid;
 import com.master.practiceReact.models.Entity.Parent;
-import com.master.practiceReact.models.Entity.Role;
 import com.master.practiceReact.service.ParentSetupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -32,6 +33,7 @@ public class AuthController {
     private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
     private final ParentSetupService parentSetupService;
+    private final KidRepository kidRepo;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -40,45 +42,82 @@ public class AuthController {
                           ParentRepository parentRepo,
                           RoleRepository roleRepo,
                           PasswordEncoder passwordEncoder,
-                          ParentSetupService parentSetupService) {
+                          ParentSetupService parentSetupService, KidRepository kidRepo) {
         this.authManager = authManager;
         this.jwtUtil = jwtUtil;
         this.parentRepo = parentRepo;
         this.roleRepo = roleRepo;
         this.passwordEncoder = passwordEncoder;
         this.parentSetupService = parentSetupService;
+        this.kidRepo = kidRepo;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            logger.info("Login Request for ParentId: {}", request.getParentId());
-
+            // Determine login identifier (ParentID or Email)
             String loginIdentifier = request.getParentId() != null && !request.getParentId().isBlank()
                     ? request.getParentId()
                     : (request.getEmail() != null ? request.getEmail() : "");
 
             if (loginIdentifier.isBlank()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Parent ID or Email is required");
+                        .body("Login ID or Email is required");
             }
 
-            authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginIdentifier, request.getPassword())
-            );
+            // Determine user type (Parent or Kid)
+            String userType = request.getUserType() != null ? request.getUserType().toUpperCase() : "PARENT";
 
-            Parent parent = (Parent) parentRepo.findByLoginIdOrEmail(loginIdentifier, loginIdentifier)
-                    .orElseThrow(() -> new RuntimeException("Parent not found"));
+            if (userType.equals("PARENT")) {
+                // Authenticate parent normally
+                authManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(loginIdentifier, request.getPassword())
+                );
 
-            String token = jwtUtil.generateToken(parent.getLoginId());
-            UserDTO userDto = new UserDTO(parent);
+                // Find parent by login ID or email
+                Parent parent = (Parent) parentRepo.findByLoginIdOrEmail(loginIdentifier, loginIdentifier)
+                        .orElseThrow(() -> new RuntimeException("Parent not found"));
 
-            return ResponseEntity.ok(Map.of("token", token, "user", userDto));
+                // Generate token with "PARENT" as a claim
+                String token = jwtUtil.generateToken(parent.getLoginId(), Map.of("type", "PARENT"));
+
+                // Create UserDTO for the parent (exclude sensitive information)
+                UserDTO userDto = new UserDTO(parent);
+
+                // Return token and user data
+                return ResponseEntity.ok(Map.of("token", token, "user", userDto));
+
+            } else if (userType.equals("KID")) {
+                // Kids login — no password required
+                Kid kid = (Kid) kidRepo.findByChildLoginId(loginIdentifier)
+                        .orElseThrow(() -> new RuntimeException("Kid not found"));
+
+                // Generate token with "KID" as a claim (including kid ID)
+                String token = jwtUtil.generateToken(kid.getChildLoginId(), Map.of("type", "KID", "kidId", kid.getId()));
+
+                // Send minimal info about the kid (you can extend this based on your requirements)
+                Map<String, Object> kidDto = Map.of(
+                        "id", kid.getId(),
+                        "name", kid.getName(),
+                        "childLoginId", kid.getChildLoginId()
+                );
+
+                // Return token and kid info
+                return ResponseEntity.ok(Map.of("token", token, "user", kidDto));
+
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user type");
+            }
 
         } catch (Exception e) {
+            // Return unauthorized error for failed login attempts
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
+
+
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
@@ -107,7 +146,7 @@ public class AuthController {
         logger.debug("Roles and permissions eagerly loaded for parent: {}", parent.getLoginId());
 
         // Step 6: Generate JWT token
-        String token = jwtUtil.generateToken(parent.getLoginId());
+        String token = jwtUtil.generateToken(parent.getLoginId(), new HashMap<>());
         logger.info("JWT token generated for parent: {}", parent.getLoginId());
 
         // Step 7: Convert Parent to UserDTO to return only necessary user data

@@ -27,15 +27,18 @@ public class Kid {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+    @Column(name="child_loginId")
+    private String childLoginId;
 
     /** Constructors **/
     public Kid() {}
 
-    public Kid(Parent parent, String name, Integer age, String grade) {
+    public Kid(Parent parent, String name, Integer age, String grade, String childLoginId) {
         this.parent = parent;
         this.name = name;
         this.age = age;
         this.grade = grade;
+        this.childLoginId = childLoginId;
     }
 
     /** Lifecycle Callback **/
@@ -62,4 +65,12 @@ public class Kid {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getChildLoginId() {
+        return this.childLoginId;
+    }
+
+    public void setChildLoginId(String childLoginId) {
+        this.childLoginId = childLoginId;
+    }
 }

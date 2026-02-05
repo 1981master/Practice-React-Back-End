@@ -50,6 +50,7 @@ public class ToDoController {
 
             Kid kid = kidService.findById(todoDto.getKidId());
             if (kid == null) {
+                logger.info("Fatal saving todo because there is no Kid found with ID: {}", todoDto.getKidId());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 

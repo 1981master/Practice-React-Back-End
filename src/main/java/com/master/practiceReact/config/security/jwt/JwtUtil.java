@@ -60,6 +60,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -72,7 +73,7 @@ public class JwtUtil {
     private final SecretKey key =
             Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
-    public String generateToken(String loginId) {
+    public String generateToken(String loginId, Map<String, Object> claims) {
         return Jwts.builder()
                 .setSubject(loginId)
                 .setIssuedAt(new Date())
@@ -80,7 +81,6 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

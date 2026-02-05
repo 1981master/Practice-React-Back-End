@@ -2,6 +2,8 @@ package com.master.practiceReact.config.security.jwt;
 
 import com.master.practiceReact.Repository.ParentRepository;
 import com.master.practiceReact.models.Entity.Parent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -16,13 +18,14 @@ import java.util.stream.Stream;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final ParentRepository parentRepository;
+    Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
     public CustomUserDetailsService(ParentRepository parentRepository) {
         this.parentRepository = parentRepository;
     }
 
     @Override
-    @Transactional(readOnly = true) // ✅ keeps Hibernate session open for lazy collections
+    @Transactional(readOnly = true) //keeps Hibernate session open for lazy collections
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
 
         Parent parent = (Parent) parentRepository.findByLoginId(loginId)
@@ -45,8 +48,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 })
                 .collect(Collectors.toList());
 
-        // 🔹 Debug log: print authorities for troubleshooting
-        authorities.forEach(a -> System.out.println("Granted authority: " + a.getAuthority()));
+        authorities.forEach(a -> logger.info("Granted authority: {}", a.getAuthority()));
 
         return new org.springframework.security.core.userdetails.User(
                 parent.getLoginId(),

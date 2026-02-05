@@ -3,6 +3,8 @@ import com.master.practiceReact.models.Entity.Attempt;
 import com.master.practiceReact.Repository.*;
 import com.master.practiceReact.models.Entity.Recommendation;
 import com.master.practiceReact.models.enums.RecommendationStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.*;
@@ -20,7 +22,7 @@ public class AnalyticsController {
     private final RecommendationRepository recommendationRepo;
     private final ToDoRepository todoRepo;
     private final KidRepository kidRepository;
-
+    private final Logger logger = LoggerFactory.getLogger(AnalyticsController.class);
     public AnalyticsController(LearningSessionRepository sessionRepo, AttemptRepository attemptRepo, TopicProgressRepository topicProgressRepo, AnalyticsSnapshotRepository snapshotRepo, RecommendationRepository recommendationRepo, ToDoRepository todoRepo, KidRepository kidRepository) {
         this.sessionRepo = sessionRepo;
         this.attemptRepo = attemptRepo;
@@ -36,7 +38,7 @@ public class AnalyticsController {
     // -----------------------------
     @GetMapping("/kids/{kidId}/overview")
     public Map<String, Object> overview(@PathVariable Long kidId) {
-
+        logger.info("Requesting Kid overview for Kid with ID: {}", kidId );
         var sessions = sessionRepo.findByKidId(kidId);
         var attempts = attemptRepo.findBySessionKidId(kidId);
 
@@ -122,13 +124,11 @@ public class AnalyticsController {
     // TODO PROGRESS
     // -----------------------------
     // -----------------------------
-// TODO PROGRESS
-// -----------------------------
     @GetMapping("/kids/{kidId}/todos")
     public List<Map<String, Object>> todos(@PathVariable Long kidId) {
-
+        logger.info("Request TODO for Parent/Kid with ID: {}", kidId);
         var todos = todoRepo.findByKidIdAndArchivedFalse(kidId);
-
+        logger.info("ToDo size: {}", todos != null ? todos.size(): 0);
         return todos.stream()
                 .map(t -> {
                     Map<String, Object> map = new HashMap<>();

@@ -40,7 +40,7 @@ public class Mapper {
         todo.setNote(dto.getNote());
         todo.setPriority(dto.getPriority());
         todo.setCompleted(dto.getCompleted());
-        todo.setArchived(dto.getArchived());
+        todo.setArchived(dto.getArchived() != null ? dto.getArchived(): false);
         todo.setCreatedAt(dto.getCreatedAt());
         todo.setUpdatedAt(dto.getUpdatedAt());
         todo.setCompletedAt(dto.getCompletedAt());
