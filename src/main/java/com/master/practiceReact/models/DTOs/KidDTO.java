@@ -10,21 +10,11 @@ public class KidDTO {
     private Integer age;
     private String grade;
     private LocalDateTime createdAt;
-    private Kid kid;
-
+    private String childLoginId;
+    private String password;
     public KidDTO() {
     }
 
-//    public KidDTO(Kid kid) {
-//        this.kid.setCreatedAt(kid.getCreatedAt());
-//        this.kid.setAge(kid.getAge());
-//        this.kid.setId(kid.getId());
-//        this.kid.setGrade(kid.getGrade());
-//        this.kid.setName(kid.getName());
-//        this.kid.setParent(kid.getParent());
-//
-//    }
-//
     // Getters and setters
     public Long getId() {
         return id;
@@ -64,5 +54,21 @@ public class KidDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getChildLoginId() {
+        return childLoginId;
+    }
+
+    public void setChildLoginId(String childLoginId) {
+        this.childLoginId = childLoginId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

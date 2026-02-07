@@ -9,6 +9,6 @@ public interface KidRepository extends JpaRepository<Kid, Long> {
     List<Kid> findByParentId(Long parentId);
     Optional<Kid> findById(Long kidId);
 
-    Optional<Object> findByChildLoginId(String loginIdentifier);
+    Optional<Kid> findByChildLoginId(String loginIdentifier);
 }
 
