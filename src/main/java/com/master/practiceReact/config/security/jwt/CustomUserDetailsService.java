@@ -116,6 +116,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                     authorities
             );
         }
-        throw new UsernameNotFoundException("User not found: " + loginId);
+        throw new UsernameNotFoundException("User not found: ");
     }
 }

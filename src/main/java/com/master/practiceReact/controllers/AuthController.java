@@ -57,74 +57,80 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            logger.info("User Type is trying to log in: {}", request.getUserType());
-            // Determine login identifier (ParentID or Email)
-            String loginIdentifier = request.getParentId() != null && !request.getParentId().isBlank()
-                    ? request.getParentId()
-                    : (request.getEmail() != null ? request.getEmail() : "");
+            String loginIdentifier = request.getLoginIdentifier();
+            String userType = request.getUserType() != null
+                    ? request.getUserType().toUpperCase()
+                    : "PARENT";
 
-            if (loginIdentifier.isBlank()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Login ID or Email is required");
+            if (loginIdentifier == null || loginIdentifier.isBlank()) {
+                return ResponseEntity.badRequest().body("Login ID is required");
             }
 
-            // Determine user type (Parent or Kid)
-            String userType = request.getUserType() != null ? request.getUserType().toUpperCase() : "PARENT";
+            if ("PARENT".equals(userType)) {
 
-            if (userType.equals("PARENT")) {
-                // Authenticate parent using Spring Security
                 authManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(loginIdentifier, request.getPassword())
+                        new UsernamePasswordAuthenticationToken(
+                                loginIdentifier,
+                                request.getPassword()
+                        )
                 );
 
-                Parent parent = (Parent) parentRepo.findByLoginIdOrEmail(loginIdentifier, loginIdentifier)
+                Parent parent = (Parent) parentRepo
+                        .findByLoginIdOrEmail(loginIdentifier, loginIdentifier)
                         .orElseThrow(() -> new RuntimeException("Parent not found"));
 
-                String token = jwtUtil.generateToken(parent.getLoginId(), Map.of("type", "PARENT"));
-                UserDTO userDto = new UserDTO(parent);
+                String token = jwtUtil.generateToken(
+                        parent.getLoginId(),
+                        Map.of("type", "PARENT")
+                );
 
-                return ResponseEntity.ok(Map.of("token", token, "user", userDto));
+                return ResponseEntity.ok(
+                        Map.of("token", token, "user", new UserDTO(parent))
+                );
 
-            } else if (userType.equals("KID")) {
-                // Find kid by childLoginId
-                Kid kid = (Kid) kidRepo.findByChildLoginId(loginIdentifier)
+            } else if ("KID".equals(userType)) {
+
+                Kid kid = kidRepo.findByChildLoginId(loginIdentifier)
                         .orElseThrow(() -> new RuntimeException("Kid not found"));
 
-                // ✅ Verify kid's password
                 if (!passwordEncoder.matches(request.getPassword(), kid.getPassword())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body("Invalid credentials");
                 }
+
+                List<String> permissions = kid.getRoles().stream()
+                        .flatMap(role -> role.getPermissions().stream())
+                        .map(p -> p.getName())
+                        .distinct()
+                        .toList();
 
                 String token = jwtUtil.generateToken(
                         kid.getChildLoginId(),
                         Map.of("type", "KID", "kidId", kid.getId())
                 );
 
-                // Collect all permissions for the kid
-                List<String> permissions = kid.getRoles().stream()
-                        .flatMap(role -> role.getPermissions().stream())
-                        .map(p -> p.getName())
-                        .distinct() // optional, remove duplicates
-                        .toList();
-
-                Map<String, Object> kidDto = Map.of(
-                        "id", kid.getId(),
-                        "name", kid.getName(),
-                        "childLoginId", kid.getChildLoginId(),
-                        "permissions", List.of("VIEW_TODOS", "VIEW_TOPICS")// hard code it for now, permissions // <-- include the permissions here
+                return ResponseEntity.ok(
+                        Map.of(
+                                "token", token,
+                                "user", Map.of(
+                                        "id", kid.getId(),
+                                        "name", kid.getName(),
+                                        "childLoginId", kid.getChildLoginId(),
+                                        "permissions", permissions
+                                )
+                        )
                 );
-
-
-                return ResponseEntity.ok(Map.of("token", token, "user", kidDto));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user type");
             }
 
+            return ResponseEntity.badRequest().body("Invalid user type");
+
         } catch (Exception e) {
-            logger.error("Login failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            logger.error("Login failed", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid credentials");
         }
     }
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {

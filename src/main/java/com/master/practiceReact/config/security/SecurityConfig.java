@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/topics/**").hasAuthority("VIEW_TOPICS")
                         .requestMatchers("/api/todos/**").hasAuthority("VIEW_TODOS")
                         .requestMatchers("/api/analytics/**").hasAuthority("VIEW_ANALYTICS")
+                        .requestMatchers("/api/subjects/**").hasAuthority("VIEW_ANALYTICS")
 
                         // all other requests must be authenticated
                         .anyRequest().authenticated()
