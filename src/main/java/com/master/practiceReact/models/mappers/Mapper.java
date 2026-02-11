@@ -18,8 +18,8 @@ public class Mapper {
         dto.setText(todo.getText());
         dto.setNote(todo.getNote());
         dto.setPriority(todo.getPriority());
-        dto.setCompleted(todo.getCompleted());
-        dto.setArchived(todo.getArchived());
+        dto.setCompleted(todo.isCompleted());
+        dto.setArchived(todo.isCompleted());
         dto.setCreatedAt(todo.getCreatedAt());
         dto.setUpdatedAt(todo.getUpdatedAt());
         dto.setCompletedAt(todo.getCompletedAt());

@@ -4,6 +4,7 @@ import com.master.practiceReact.Repository.ParentRepository;
 import com.master.practiceReact.models.Entity.Parent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,4 +45,26 @@ public class ParentDetailsService implements UserDetailsService {
         Parent parent = parentRepo.findById(kidId).orElseThrow(() -> new RuntimeException("Parent with provide Id not found"));
         return  parent;
     }
+
+    public Parent getAuthenticatedParent(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No authenticated parent found");
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        String loginId;
+
+        if (principal instanceof UserDetails userDetails) {
+            loginId = userDetails.getUsername();
+        } else if (principal instanceof String username) {
+            loginId = username;
+        } else {
+            throw new RuntimeException("Cannot extract loginId from authentication");
+        }
+
+        return parentRepo.findByLoginId(loginId)
+                .orElseThrow(() -> new RuntimeException("Authenticated parent not found in database"));
+    }
+
 }

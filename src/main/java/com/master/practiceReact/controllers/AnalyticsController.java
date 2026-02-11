@@ -124,24 +124,25 @@ public class AnalyticsController {
     // TODO PROGRESS
     // -----------------------------
     // -----------------------------
-    @GetMapping("/kids/{kidId}/todos")
-    public List<Map<String, Object>> todos(@PathVariable Long kidId) {
-        logger.info("Request TODO for Parent/Kid with ID: {}", kidId);
-        var todos = todoRepo.findByKidIdAndArchivedFalse(kidId);
-        logger.info("ToDo size: {}", todos != null ? todos.size(): 0);
-        return todos.stream()
-                .map(t -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", t.getId());
-                    map.put("text", t.getText());
-                    map.put("completed", t.getCompleted());
-                    map.put("priority", t.getPriority());
-                    map.put("createdAt", t.getCreatedAt());
-                    map.put("updatedAt", t.getUpdatedAt());
-                    map.put("completedAt", t.getCompletedAt());
-                    return map;
-                })
-                .toList();
-    }
+
+//    @GetMapping("/kids/{kidId}/todos")
+//    public List<Map<String, Object>> todos(@PathVariable Long kidId) {
+//        logger.info("Request TODO for Parent/Kid with ID: {}", kidId);
+//        var todos = todoRepo.findByKidIdAndArchivedFalse(kidId);
+//        logger.info("ToDo size: {}", todos != null ? todos.size(): 0);
+//        return todos.stream()
+//                .map(t -> {
+//                    Map<String, Object> map = new HashMap<>();
+//                    map.put("id", t.getId());
+//                    map.put("text", t.getText());
+//                    map.put("completed", t.getCompleted());
+//                    map.put("priority", t.getPriority());
+//                    map.put("createdAt", t.getCreatedAt());
+//                    map.put("updatedAt", t.getUpdatedAt());
+//                    map.put("completedAt", t.getCompletedAt());
+//                    return map;
+//                })
+//                .toList();
+//    }
 
 }

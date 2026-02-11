@@ -41,15 +41,20 @@ public class Parent {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "parent",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<ToDo> todos = new HashSet<>();
 
     /** Constructors **/
     public Parent() {}
 
-    public Parent(Long id, String email, String password, String loginId) {
+    public Parent(Long id, String email, String password, String loginId, Set todos) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.loginId = loginId;
+        this.todos = todos;
     }
 
     /** Lifecycle Callback **/
@@ -84,4 +89,12 @@ public class Parent {
 
     public String getLoginId() { return loginId; }
     public void setLoginId(String loginId) { this.loginId = loginId; }
+
+    public Set<ToDo> getTodos() {
+        return todos;
+    }
+
+    public void setTodos(Set<ToDo> todos) {
+        this.todos = todos;
+    }
 }

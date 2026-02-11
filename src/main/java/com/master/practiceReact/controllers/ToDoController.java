@@ -1,96 +1,86 @@
 package com.master.practiceReact.controllers;
 
-import com.master.practiceReact.Repository.ParentRepository;
 import com.master.practiceReact.models.DTOs.ToDoDTO;
-import com.master.practiceReact.models.Entity.Kid;
-import com.master.practiceReact.models.Entity.Parent;
-import com.master.practiceReact.service.KidService;
-import com.master.practiceReact.service.ParentDetailsService;
 import com.master.practiceReact.service.ToDoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/todo")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ToDoController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ToDoController.class);
+    private final ToDoService toDoService;
 
-    @Autowired
-    private ToDoService toDoService;
-
-    @Autowired
-    private KidService kidService;
-    private ParentDetailsService parentDetailsService;
-
-    // -----------------------------
-    // GET all todos for frontend
-    // -----------------------------
-    @GetMapping("/{kidId}")
-    public ResponseEntity<List<ToDoDTO>> getTodos(@PathVariable Long kidId) {
-        logger.info("[Todo] Fetching todos for kidId: {}", kidId);
-        List<ToDoDTO> todos = toDoService.findByKidId(kidId);
-        return ResponseEntity.ok(todos);
+    public ToDoController(ToDoService toDoService) {
+        this.toDoService = toDoService;
     }
 
-    // -----------------------------
-    // CREATE new todo
-    // -----------------------------
-    @PostMapping("/saveToDo")
-    public ResponseEntity<ToDoDTO> createTodo(@RequestBody ToDoDTO todoDto) {
-        try {
-            logger.info("[Todo] Adding new todo: {}", todoDto.getText());
+    // ========================
+    // Parent assigns a todo
+    // ========================
+    @PostMapping("/assign")
+    public ResponseEntity<ToDoDTO> assign(
+            @RequestBody ToDoDTO dto,
+            Authentication authentication) {
 
-            Kid kid = kidService.findById(todoDto.getKidId());
-            if (kid == null) {
-                logger.info("Fatal saving todo because there is no Kid found with ID: {}", todoDto.getKidId());
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-            }
+        String username = authentication.getName();
 
-            ToDoDTO saved = toDoService.save(todoDto, kid);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (Exception e) {
-            logger.error("[Todo] Failed to add todo", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        // Call service to assign todo with parent authorization
+        ToDoDTO assignedTodo = toDoService.assign(dto, username);
+
+        return ResponseEntity.ok(assignedTodo);
     }
 
-    // -----------------------------
-    // UPDATE todo (toggle completed, edit text/note/priority)
-    // -----------------------------
+    // ========================
+    // Update todo (parent or kid)
+    // ========================
     @PutMapping("/{id}")
-    public ResponseEntity<ToDoDTO> updateTodo(@PathVariable Long id, @RequestBody ToDoDTO updatedDto) {
-        try {
-            logger.info("[Todo] Updating todo id: {}", id);
-            ToDoDTO updated = toDoService.update(id, updatedDto);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            logger.error("[Todo] Failed to update todo id: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<ToDoDTO> update(
+            @PathVariable Long id,
+            @RequestBody ToDoDTO dto,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+
+        boolean isParent = authentication.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_PARENT"));
+
+        // Call service with proper authorization handling
+        ToDoDTO updatedTodo = toDoService.updateWithAuthorization(id, dto, username, isParent);
+
+        return ResponseEntity.ok(updatedTodo);
     }
 
-    // -----------------------------
-    // DELETE todo
-    // -----------------------------
+    // ========================
+    // Delete todo (parent only)
+    // ========================
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<?> deleteTodo(@PathVariable Long id) {
-        try {
-            logger.info("[Todo] Deleting todo id: {}", id);
-            toDoService.deleteById(id);
-            return ResponseEntity.ok("Todo deleted successfully");
-        } catch (Exception e) {
-            logger.error("[Todo] Failed to delete todo id: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to delete todo: " + e.getMessage());
-        }
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+
+        toDoService.delete(id, username);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========================
+    // Optional: kid fetch own todos
+    // ========================
+    @GetMapping("/my-todos")
+    public ResponseEntity<List<ToDoDTO>> myTodos(Authentication authentication) {
+
+        String username = authentication.getName();
+
+        List<ToDoDTO> todos = toDoService.findByKidLogin(username);
+
+        return ResponseEntity.ok(todos);
     }
 }
