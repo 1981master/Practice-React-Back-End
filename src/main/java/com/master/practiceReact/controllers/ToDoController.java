@@ -48,7 +48,7 @@ public class ToDoController {
 
         boolean isParent = authentication.getAuthorities()
                 .stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_PARENT"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"));
 
         // Call service with proper authorization handling
         ToDoDTO updatedTodo = toDoService.updateWithAuthorization(id, dto, username, isParent);
@@ -61,12 +61,9 @@ public class ToDoController {
     // ========================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @PathVariable Long id,
-            Authentication authentication) {
+            @PathVariable Long id) {
 
-        String username = authentication.getName();
-
-        toDoService.delete(id, username);
+        toDoService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

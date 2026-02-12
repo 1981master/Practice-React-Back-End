@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -176,8 +177,8 @@ public class ToDoService {
     }
 
     // Delete a todo by ID (parent only)
-    public void delete(Long id, String username) {
-        ToDo todo = toDoRepository.findByIdAndParentLogin(id, username)
+    public void delete(Long id) {
+        ToDo todo = toDoRepository.findByParentLogin(id)
                 .orElseThrow(() -> new RuntimeException("Parent not authorized to delete this todo"));
 
         toDoRepository.delete(todo);
@@ -195,17 +196,21 @@ public class ToDoService {
     public ToDoDTO assign(ToDoDTO dto, String parentLogin) {
 
         // Fetch parent by login
-        Parent parent = parentRepo.findByLoginId(parentLogin)
-                .orElseThrow(() -> new RuntimeException("Parent not found"));
-
+        Optional<Parent> parentOptional = parentRepo.findByLoginId(parentLogin);
+        Parent parent = null;
+        if(parentOptional.isPresent()){
+            parent = parentOptional.get();
+        }
         // Fetch kid by id from DTO
         Kid kid = kidRepo.findById(dto.getKidId())
                 .orElseThrow(() -> new RuntimeException("Kid not found"));
-
-        // Ensure kid belongs to parent
-        if (!kid.getParent().getId().equals(parent.getId())) {
-            throw new RuntimeException("Cannot assign ToDo to a kid not belonging to you");
+        if(parent == null && kid != null){
+            parent = kid.getParent();
         }
+        // Ensure kid belongs to parent
+//        if (!kid.getParent().getId().equals(parent.getId())) {
+//            throw new RuntimeException("Cannot assign ToDo to a kid not belonging to you");
+//        }
 
         // Create ToDo entity
         ToDo todo = new ToDo();

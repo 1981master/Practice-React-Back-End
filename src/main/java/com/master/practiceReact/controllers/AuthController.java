@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,12 +69,16 @@ public class AuthController {
 
             if ("PARENT".equals(userType)) {
 
-                authManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                loginIdentifier,
-                                request.getPassword()
-                        )
-                );
+                try {
+                    authManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    loginIdentifier,
+                                    request.getPassword()
+                            )
+                    );
+                } catch (AuthenticationException e) {
+                    throw new RuntimeException(e);
+                }
 
                 Parent parent = (Parent) parentRepo
                         .findByLoginIdOrEmail(loginIdentifier, loginIdentifier)

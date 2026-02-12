@@ -71,7 +71,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // =========================
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+    public  UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
 
         // Try Parent first
         Optional<Parent> parentOpt = parentRepository.findByLoginId(loginId);
@@ -116,6 +116,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                     authorities
             );
         }
-        throw new UsernameNotFoundException("User not found: ");
+        throw new RuntimeException("User not found Retry or Signup ");
     }
 }
