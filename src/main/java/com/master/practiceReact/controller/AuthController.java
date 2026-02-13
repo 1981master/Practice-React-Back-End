@@ -1,8 +1,8 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
-import com.master.practiceReact.Repository.KidRepository;
-import com.master.practiceReact.Repository.ParentRepository;
-import com.master.practiceReact.Repository.RoleRepository;
+import com.master.practiceReact.repository.KidRepository;
+import com.master.practiceReact.repository.ParentRepository;
+import com.master.practiceReact.repository.RoleRepository;
 import com.master.practiceReact.config.security.jwt.JwtUtil;
 import com.master.practiceReact.models.DTOs.LoginRequest;
 import com.master.practiceReact.models.DTOs.SignupRequest;

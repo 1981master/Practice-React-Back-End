@@ -1,7 +1,7 @@
 package com.master.practiceReact.service;
 
-import com.master.practiceReact.Repository.PermissionRepository;
-import com.master.practiceReact.Repository.RoleRepository;
+import com.master.practiceReact.repository.PermissionRepository;
+import com.master.practiceReact.repository.RoleRepository;
 import com.master.practiceReact.models.Entity.Permission;
 import com.master.practiceReact.models.Entity.Role;
 import org.springframework.stereotype.Service;

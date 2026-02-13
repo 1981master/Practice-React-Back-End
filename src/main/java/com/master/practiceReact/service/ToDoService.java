@@ -1,8 +1,8 @@
 package com.master.practiceReact.service;
 
-import com.master.practiceReact.Repository.KidRepository;
-import com.master.practiceReact.Repository.ParentRepository;
-import com.master.practiceReact.Repository.ToDoRepository;
+import com.master.practiceReact.repository.KidRepository;
+import com.master.practiceReact.repository.ParentRepository;
+import com.master.practiceReact.repository.ToDoRepository;
 import com.master.practiceReact.models.DTOs.ToDoDTO;
 import com.master.practiceReact.models.Entity.Parent;
 import com.master.practiceReact.models.Entity.ToDo;

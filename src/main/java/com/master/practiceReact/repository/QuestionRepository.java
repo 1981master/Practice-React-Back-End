@@ -1,4 +1,4 @@
-package com.master.practiceReact.Repository;
+package com.master.practiceReact.repository;
 
 import com.master.practiceReact.models.Entity.Question;
 import org.springframework.data.jpa.repository.JpaRepository;

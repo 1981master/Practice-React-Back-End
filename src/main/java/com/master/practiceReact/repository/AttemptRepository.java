@@ -1,11 +1,7 @@
-package com.master.practiceReact.Repository;
+package com.master.practiceReact.repository;
 
 import com.master.practiceReact.models.Entity.Attempt;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 
 public interface AttemptRepository extends JpaRepository<Attempt, Long> {

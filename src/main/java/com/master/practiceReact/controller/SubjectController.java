@@ -1,6 +1,6 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
-import com.master.practiceReact.Repository.SubjectRepository;
+import com.master.practiceReact.repository.SubjectRepository;
 import com.master.practiceReact.models.DTOs.SubjectDTO;
 import com.master.practiceReact.models.DTOs.TopicDTO;
 import com.master.practiceReact.models.Entity.Subject;

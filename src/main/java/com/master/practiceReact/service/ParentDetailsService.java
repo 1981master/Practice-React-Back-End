@@ -1,11 +1,10 @@
 package com.master.practiceReact.service;
 
-import com.master.practiceReact.Repository.ParentRepository;
+import com.master.practiceReact.repository.ParentRepository;
 import com.master.practiceReact.models.Entity.Parent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -1,4 +1,4 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
 import com.master.practiceReact.models.DTOs.CounterDTO;
 import com.master.practiceReact.models.Entity.Counter;

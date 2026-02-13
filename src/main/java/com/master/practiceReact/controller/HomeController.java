@@ -1,4 +1,4 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

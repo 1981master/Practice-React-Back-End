@@ -1,6 +1,6 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
-import com.master.practiceReact.Repository.ParentRepository;
+import com.master.practiceReact.repository.ParentRepository;
 import com.master.practiceReact.models.Entity.Parent;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

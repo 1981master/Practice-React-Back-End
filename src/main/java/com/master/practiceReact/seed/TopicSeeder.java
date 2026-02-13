@@ -1,7 +1,7 @@
 package com.master.practiceReact.seed;
 
-import com.master.practiceReact.Repository.SubjectRepository;
-import com.master.practiceReact.Repository.TopicRepository;
+import com.master.practiceReact.repository.SubjectRepository;
+import com.master.practiceReact.repository.TopicRepository;
 import com.master.practiceReact.models.Entity.Topic;
 import com.master.practiceReact.models.Entity.Subject;
 import org.springframework.boot.CommandLineRunner;

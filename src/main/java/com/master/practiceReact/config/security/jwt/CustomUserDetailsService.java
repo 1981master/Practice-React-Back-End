@@ -1,7 +1,7 @@
 package com.master.practiceReact.config.security.jwt;
 
-import com.master.practiceReact.Repository.ParentRepository;
-import com.master.practiceReact.Repository.KidRepository;
+import com.master.practiceReact.repository.ParentRepository;
+import com.master.practiceReact.repository.KidRepository;
 import com.master.practiceReact.models.Entity.Parent;
 import com.master.practiceReact.models.Entity.Kid;
 

@@ -1,6 +1,6 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 import com.master.practiceReact.models.Entity.Attempt;
-import com.master.practiceReact.Repository.*;
+import com.master.practiceReact.repository.*;
 import com.master.practiceReact.models.Entity.Recommendation;
 import com.master.practiceReact.models.enums.RecommendationStatus;
 import org.slf4j.Logger;

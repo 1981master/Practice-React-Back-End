@@ -1,7 +1,7 @@
 package com.master.practiceReact.service;
 
 import com.master.practiceReact.models.Entity.Counter;
-import com.master.practiceReact.Repository.CounterRepository;
+import com.master.practiceReact.repository.CounterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
 package com.master.practiceReact.service;
 
 import com.master.practiceReact.models.Entity.Role;
-import com.master.practiceReact.Repository.RoleRepository;
+import com.master.practiceReact.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 

@@ -1,4 +1,4 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
 import com.master.practiceReact.models.events.KafkaLessonCompletedEvent;
 import org.springframework.web.bind.annotation.PostMapping;

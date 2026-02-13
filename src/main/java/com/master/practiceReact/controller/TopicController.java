@@ -1,6 +1,6 @@
-package com.master.practiceReact.controllers;
+package com.master.practiceReact.controller;
 
-import com.master.practiceReact.Repository.TopicRepository;
+import com.master.practiceReact.repository.TopicRepository;
 import com.master.practiceReact.models.Entity.Topic;
 import org.springframework.web.bind.annotation.*;
 
