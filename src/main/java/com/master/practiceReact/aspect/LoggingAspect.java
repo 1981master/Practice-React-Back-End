@@ -32,7 +32,7 @@ public class LoggingAspect {
             Object filtered = filterSensitive(obj);
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(filtered);
         } catch (Exception e) {
-            return obj != null ? obj.toString() : "null";
+            return obj != null ? obj.toString() : "[No Object Exist]";
         }
     }
     @SuppressWarnings("unchecked")
@@ -63,12 +63,11 @@ public class LoggingAspect {
         } else if (obj instanceof Optional<?> opt) {
             return opt.map(this::filterSensitive).orElse(null);
         } else if (isPojo(obj)) {
-            // Convert POJO to Map via Jackson and filter recursively
+            // INFO: Converting the POJO to Map via Jackson and filter recursively
             Map<String, Object> map = mapper.convertValue(obj, Map.class);
             return filterSensitive(map);
         }
 
-        // default: return as-is
         return obj;
     }
 
@@ -76,8 +75,6 @@ public class LoggingAspect {
         String pkg = obj.getClass().getPackageName();
         return !pkg.startsWith("java.") && !pkg.startsWith("jakarta.") && !obj.getClass().isEnum();
     }
-
-
     // ==========================
     // Service Layer
     // ==========================

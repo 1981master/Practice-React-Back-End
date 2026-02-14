@@ -4,6 +4,8 @@ import com.master.practiceReact.repository.SubjectRepository;
 import com.master.practiceReact.repository.TopicRepository;
 import com.master.practiceReact.models.Entity.Topic;
 import com.master.practiceReact.models.Entity.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,7 @@ public class TopicSeeder implements CommandLineRunner {
 
     private final TopicRepository topicRepository;
     private final SubjectRepository subjectRepository;
-
+    private final Logger logger = LoggerFactory.getLogger(TopicSeeder.class);
     public TopicSeeder(TopicRepository topicRepository, SubjectRepository subjectRepository) {
         this.topicRepository = topicRepository;
         this.subjectRepository = subjectRepository;
@@ -117,7 +119,7 @@ public class TopicSeeder implements CommandLineRunner {
         );
 
         topicRepository.saveAll(topics);
-        System.out.println("✅ Topics seeded successfully with emojis!");
+        logger.info("✅ Topics seeded successfully with emojis!");
     }
 
     // Helper method: get subject by name or create it if missing

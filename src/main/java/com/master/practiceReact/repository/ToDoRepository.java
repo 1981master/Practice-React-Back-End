@@ -20,5 +20,7 @@ public interface ToDoRepository extends JpaRepository<ToDo, Long> {
     // Fetch todo by id and parent's login
     @Query("SELECT t FROM ToDo t WHERE t.id = :id")
     Optional<ToDo> findByParentLogin(@Param("id") Long id);
+
+    List<ToDo> findByParentId(Long id);
 }
 

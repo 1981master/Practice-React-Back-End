@@ -15,14 +15,14 @@ public class ToDoDTO {
     private Priority priority;
     private Boolean completed;
     private Boolean archived;
-
+    private String kidName;
     // ===================== Constructors =====================
 
     public ToDoDTO() {}
 
     public ToDoDTO(Long id, Long kidId, String text, String note, LocalDateTime createdAt,
                    LocalDateTime updatedAt, LocalDateTime completedAt, Priority priority,
-                   Boolean completed, Boolean archived) {
+                   Boolean completed, Boolean archived, String kidName) {
         this.id = id;
         this.kidId = kidId;
         this.text = text;
@@ -33,6 +33,7 @@ public class ToDoDTO {
         this.priority = priority;
         this.completed = completed;
         this.archived = archived;
+        this.kidName = kidName;
     }
 
     // ===================== Getters & Setters =====================
@@ -67,4 +68,11 @@ public class ToDoDTO {
     public Boolean getArchived() { return archived; }
     public void setArchived(Boolean archived) { this.archived = archived; }
 
+    public String getKidName() {
+        return kidName;
+    }
+
+    public void setKidName(String kidName) {
+        this.kidName = kidName;
+    }
 }

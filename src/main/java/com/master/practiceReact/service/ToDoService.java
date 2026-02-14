@@ -196,21 +196,20 @@ public class ToDoService {
     public ToDoDTO assign(ToDoDTO dto, String parentLogin) {
 
         // Fetch parent by login
-        Optional<Parent> parentOptional = parentRepo.findByLoginId(parentLogin);
+        Optional<Parent> parentOptional = parentRepo.findByLoginId(String.valueOf(dto.getKidId()));
         Parent parent = null;
         if(parentOptional.isPresent()){
             parent = parentOptional.get();
         }
         // Fetch kid by id from DTO
         Kid kid = kidRepo.findById(dto.getKidId())
-                .orElseThrow(() -> new RuntimeException("Kid not found"));
+                .orElse(null);
         if(parent == null && kid != null){
             parent = kid.getParent();
         }
-        // Ensure kid belongs to parent
-//        if (!kid.getParent().getId().equals(parent.getId())) {
-//            throw new RuntimeException("Cannot assign ToDo to a kid not belonging to you");
-//        }
+        if(kid == null && parent == null){
+            return null;
+        }
 
         // Create ToDo entity
         ToDo todo = new ToDo();
@@ -226,5 +225,23 @@ public class ToDoService {
         ToDo saved = toDoRepository.save(todo);
         return Mapper.toDTO(saved);
     }
+
+    public List<ToDoDTO> findByParentUsername(String username) {
+        Parent parent = parentRepo.findByLoginId(username)
+                .orElseThrow(() -> new RuntimeException("Parent not found"));
+
+        List<ToDo> todos = toDoRepository.findByParentId(parent.getId());
+
+        return todos.stream()
+                .map(todo -> {
+                    ToDoDTO dto = Mapper.toDTO(todo);
+                    if (todo.getKid() != null) {
+                        dto.setKidName(todo.getKid().getName());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
 
 }

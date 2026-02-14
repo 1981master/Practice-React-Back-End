@@ -4,7 +4,6 @@ import com.master.practiceReact.models.enums.Priority;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "todo")
 public class ToDo {
@@ -13,15 +12,14 @@ public class ToDo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Parent (owner)
+    // Parent The (owner)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "parent_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_todo_parent"))
     private Parent parent;
 
-    // Assigned kid
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "kid_id", nullable = false,
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "kid_id", nullable = true,
             foreignKey = @ForeignKey(name = "fk_todo_kid"))
     private Kid kid;
 
@@ -56,7 +54,7 @@ public class ToDo {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters & Setters
+    // Getters & Setters remain the same
     public Long getId() { return id; }
     public Parent getParent() { return parent; }
     public Kid getKid() { return kid; }

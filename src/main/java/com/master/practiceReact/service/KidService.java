@@ -70,9 +70,16 @@ public class KidService {
         return kidRepository.findById(kidId)
                 .orElseThrow(() -> new RuntimeException("Kid with provided Id not found"));
     }
+    public Boolean existByLoginId(Long kidId){
+        return kidRepository.existsById(kidId);
+    }
     @Transactional
     public Kid registerKid(Kid kid) {
         // This will save the kid and assign default roles/permissions
         return kidSetupService.registerKid(kid);
+    }
+
+    public boolean existsByChildLoginId(String childLoginId) {
+        return kidRepository.existsByChildLoginId(childLoginId);
     }
 }

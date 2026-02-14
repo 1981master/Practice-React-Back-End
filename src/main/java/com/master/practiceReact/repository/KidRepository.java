@@ -10,5 +10,7 @@ public interface KidRepository extends JpaRepository<Kid, Long> {
     Optional<Kid> findById(Long kidId);
 
     Optional<Kid> findByChildLoginId(String loginIdentifier);
+
+    boolean existsByChildLoginId(String childLoginId);
 }
 

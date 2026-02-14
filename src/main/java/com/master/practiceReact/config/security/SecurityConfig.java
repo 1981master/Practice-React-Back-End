@@ -43,12 +43,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints first
-                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/h2-console/**", "/waw/**").permitAll()
 
                         // secured endpoints with permissions
                         .requestMatchers("/api/kids/**").hasAuthority("VIEW_KIDS")
                         .requestMatchers("/api/topics/**").hasAuthority("VIEW_TOPICS")
-                        .requestMatchers("/api/todos/**").hasAuthority("VIEW_TODOS")
+                        .requestMatchers("/api/todo/assign").hasRole("ADMIN")
                         .requestMatchers("/api/analytics/**").hasAuthority("VIEW_ANALYTICS")
                         .requestMatchers("/api/subjects/**").hasAuthority("VIEW_ANALYTICS")
 
@@ -64,12 +64,13 @@ public class SecurityConfig {
     }
     @Bean
     public AuthenticationManager authenticationManager() {
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
-
         return new ProviderManager(provider);
     }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

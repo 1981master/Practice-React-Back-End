@@ -41,7 +41,7 @@ public class ParentDetailsService implements UserDetailsService {
 
 
     public Parent findById(Long kidId) {
-        Parent parent = parentRepo.findById(kidId).orElseThrow(() -> new RuntimeException("Parent with provide Id not found"));
+        Parent parent = parentRepo.findById(kidId).orElse(null);
         return  parent;
     }
 
