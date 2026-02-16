@@ -1,6 +1,5 @@
 package com.master.practiceReact.controller;
 
-import com.master.practiceReact.models.events.KafkaLessonCompletedEvent;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LessonController {
 
     @PostMapping("/complete")
-    public String completeLesson(@RequestBody KafkaLessonCompletedEvent event) {
+    public String completeLesson(@RequestBody Boolean complete) {
         return "Lesson event sent!";
     }
 }

@@ -31,7 +31,7 @@ public class Mapper {
         return dto;
     }
 
-    public static ToDo fromDTO(ToDoDTO dto, Kid kid) {
+    public static ToDo fromToDoDtoAndKidToToDO(ToDoDTO dto, Kid kid) {
         if (dto == null) return null;
 
         ToDo todo = new ToDo();
@@ -49,12 +49,15 @@ public class Mapper {
         return todo;
     }
 
-    public static ParentDTO toDTO(Parent parent) {
+    public static ParentDTO fromParentToParentDTO(Parent parent) {
         ParentDTO dto = new ParentDTO();
         dto.setId(parent.getId());
         dto.setLoginId(parent.getLoginId());
         dto.setEmail(parent.getEmail());
         dto.setCreatedAt(parent.getCreatedAt());
+        dto.setKids(parent.getKids());
+        dto.setPermissions(parent.getParentPermissions());
+        dto.setTodos(parent.getTodos());
         dto.setRoles(
                 parent.getRoles()
                         .stream()
@@ -74,6 +77,15 @@ public class Mapper {
         kidDTO.setAge(kid.getAge());
         kidDTO.setGrade(kid.getGrade());
         kidDTO.setCreatedAt(kid.getCreatedAt());
+        kidDTO.setParent(kid.getParent());
+        kidDTO.setChildLoginId(kid.getChildLoginId());
+        kidDTO.setAnalyticsSnapshot(kid.getAnalyticsSnapshots());
+        kidDTO.setCounters(kid.getCounters());
+        kidDTO.setLearningSessions(kid.getLearningSessions());
+        kidDTO.setParentTopicSettings(kid.getParentTopicSettings());
+        kidDTO.setRecommendation(kid.getRecommendations());
+        kidDTO.setTodo(kid.getTodos());
+        kidDTO.setRoles(kid.getRoles());
 
         return kidDTO;
     }

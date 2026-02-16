@@ -1,6 +1,13 @@
 package com.master.practiceReact.models.DTOs;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.master.practiceReact.models.Entity.Kid;
+import com.master.practiceReact.models.Entity.ParentPermission;
+import com.master.practiceReact.models.Entity.Permission;
+import com.master.practiceReact.models.Entity.ToDo;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public class ParentDTO {
@@ -10,6 +17,10 @@ public class ParentDTO {
     private String email;
     private LocalDateTime createdAt;
     private Set<String> roles;
+    @JsonBackReference
+    private Set<Kid> kids;
+    private Set<ParentPermission> permissions;
+    private Set<ToDo> todos;
 
     public ParentDTO() {
     }
@@ -52,5 +63,29 @@ public class ParentDTO {
 
     public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    public Set<Kid> getKids() {
+        return kids;
+    }
+
+    public void setKids(Set<Kid> kids) {
+        this.kids = kids;
+    }
+
+    public Set<ParentPermission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<ParentPermission> permissions) {
+        this.permissions = permissions;
+    }
+
+    public Set<ToDo> getTodos() {
+        return todos;
+    }
+
+    public void setTodos(Set<ToDo> todos) {
+        this.todos = todos;
     }
 }
